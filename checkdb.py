@@ -10,3 +10,4 @@ try:
     conn.close()
 except sqlite3.Error as e:
     print("Error connecting to database:", e)
+    

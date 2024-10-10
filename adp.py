@@ -19,9 +19,9 @@ Usage:
 """
 from flask_sqlalchemy import SQLAlchemy
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///my_database.db'
-db = SQLAlchemy(app)
+application = Flask(__name__)
+application.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///my_database.db'
+db = SQLAlchemy(application)
 
 # 定义一个简单的数据模型
 class Users(db.Model):
@@ -70,6 +70,38 @@ Second follow-up visit（二次回访）-SFV
 Remarks（备注）-REM
 Date of reporting to Ping An（报案至平安日期）-DRPA
 
+事件类型（轻微/一般/重大） - AT
+骑手姓名 -  NIPID 
+骑手身份证号码 - IDNIPID
+骑手联系方式（手机号码）- MPN
+骑手隶属站点 - PN
+入职时间 - OOC
+事发时间 - TOC
+事发地点（省市区具体道路位置）-LOC
+事发经过描述-DOD
+是否是交通事故，如是：是否报警 -AT
+报警后是否有现场责任认定结果或责任认定结果-LD
+骑手本人是否受伤？目前伤情（诊断结果）-AMT
+是否涉及第三方受伤？目前伤情（诊断结果）-TPMT
+是否涉及第三方财损，目前大致财损情况-TPP
+
+incident_data = {
+    "AT": "一般",
+    "NIPID": "张三",
+    "IDNIPID": "310111111111111111",
+    "MPN": "186213333333",
+    "PN": "上海黄埔",
+    "OOC": "2000-01",
+    "TOC": "2024.10.10 10:10",
+    "LOC": "上海市嘉定区andrew路",
+    "DOD": "骑手张三在上海市嘉定区andrew路上骑车时，被一辆小汽车撞倒",
+    "AT2": "属于交通事故，已报警",
+    "LD": "报警后交警到达现场，认定小汽车承担50%责任，骑手承担50%责任",
+    "AMT": "骑手受伤，手臂骨折",
+    "TPMT": "无第三方手上",
+    "TPP": "小汽车剐蹭，一个漆面300元"
+}
+
 """
 class Report(db.Model):
     SN = db.Column(db.Integer, primary_key=True, autoincrement=True) 
@@ -110,21 +142,26 @@ class Report(db.Model):
 
         
 # 创建数据库表（如果不存在）
-with app.app_context():
+with application.app_context():
     db.create_all()
 
+
+@application.route('/')
+def welcome():
+        return "Welcome to Nuts!"
+
 # API 路由，返回所有用户
-@app.route('/users', methods=['GET'])
+@application.route('/users', methods=['GET'])
 def get_users():
     users = Users.query.all()
     return jsonify([{'id': user.id, 'name': user.name,'age':user.age} for user in users])
 
-@app.route('/clients', methods=['GET'])
+@application.route('/clients', methods=['GET'])
 def get_clients():
     clients = Clients.query.all()
     return jsonify([{'idno': client.idno, 'name': client.name,'mobile':client.mobile,'descript':client.descript} for client in clients])
 
-@app.route('/clients/<mobile>', methods=['GET'])
+@application.route('/clients/<mobile>', methods=['GET'])
 def search_clients_by_mobile(mobile):
     client = Clients.query.filter_by(mobile=mobile).first()
     if client:
@@ -132,7 +169,7 @@ def search_clients_by_mobile(mobile):
     else:
         return jsonify({'message': 'Client not found'})
 
-@app.route('/clients', methods=['POST'])
+@application.route('/clients', methods=['POST'])
 def add_client():
     data = request.get_json()
     name = data.get('name')
@@ -146,7 +183,7 @@ def add_client():
     db.session.commit()
     return jsonify({'message': 'Client added successfully'}), 201
 
-@app.route('/reports', methods=['POST'])
+@application.route('/reports', methods=['POST'])
 def add_report():
         data = request.get_json()
         report = Report(
@@ -186,7 +223,7 @@ def add_report():
         db.session.commit()
         return jsonify({'message': 'Report added successfully'}), 201
 
-@app.route('/reports', methods=['GET'])
+@application.route('/reports', methods=['GET'])
 def get_reports():
     reports = Report.query.all()
     return jsonify([{
@@ -225,7 +262,7 @@ def get_reports():
     } for report in reports])
 
 
-@app.route('/reports/search_by_mobile', methods=['POST'])
+@application.route('/reports/search_by_mobile', methods=['POST'])
 def search_reports_by_mobile_post():
         data = request.get_json()
         mobile = data.get('mobile')
@@ -269,7 +306,7 @@ def search_reports_by_mobile_post():
             'DRPA': report.DRPA
         } for report in reports])
 
-@app.route('/reports/search_by_pn', methods=['POST'])
+@application.route('/reports/search_by_pn', methods=['POST'])
 def search_reports_by_pn():
     data = request.get_json()
     pn = data.get('PN')
@@ -313,7 +350,7 @@ def search_reports_by_pn():
         'DRPA': report.DRPA
     } for report in reports])
 
-@app.route('/reports/search_by_rn', methods=['POST'])
+@application.route('/reports/search_by_rn', methods=['POST'])
 def search_reports_by_rn():
         data = request.get_json()
         rn = data.get('RN')
@@ -359,4 +396,4 @@ def search_reports_by_rn():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    application.run(debug=True)
