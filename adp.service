@@ -1,0 +1,13 @@
+[Unit]
+Description=uWsgi instance to serve ADP
+After=network.target
+
+[Service]
+User=jack
+Group=nginx
+WorkingDirectory=/home/jack/adp
+Environment="PATH=/home/jack/adp/adpenv/bin"
+ExecStart=/home/jack/adp/adpenv/bin/uwsgi --ini adp.ini
+
+[Install]
+WantedBy=multi-user.target

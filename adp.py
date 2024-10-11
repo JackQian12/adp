@@ -1,4 +1,8 @@
+import os
+import pymysql
+import config
 from flask import Flask, jsonify, request
+
 """
 This module sets up a Flask web application with SQLAlchemy for database management. 
 It defines three data models: Users, Clients, and Report, and provides several API routes 
@@ -16,18 +20,74 @@ Usage:
     Run this module to start the Flask web application. The application will create the necessary 
     database tables if they do not already exist and provide API endpoints for interacting with 
     the Users and Clients models.
+
+# SQL script to create the Users table in MySQL
+    CREATE TABLE Users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(80) NOT NULL,
+        age INT
+    );
+
+     CREATE TABLE Report (
+        SN INT AUTO_INCREMENT PRIMARY KEY,
+        LC VARCHAR(80),
+        Insured VARCHAR(80),
+        NIPID VARCHAR(80),
+        ON VARCHAR(80),
+        IDNIPID VARCHAR(80),
+        MPN VARCHAR(80),
+        PN VARCHAR(80),
+        RT VARCHAR(80),
+        DOC VARCHAR(80),
+        TOC VARCHAR(80),
+        LOC VARCHAR(2000),
+        DOD VARCHAR(2000),
+        AT VARCHAR(80),
+        AC VARCHAR(80),
+        SDA VARCHAR(80),
+        WV VARCHAR(80),
+        LD VARCHAR(80),
+        TOL VARCHAR(80),
+        CSS VARCHAR(80),
+        CS VARCHAR(80),
+        RN VARCHAR(80),
+        PA VARCHAR(80),
+        AMT VARCHAR(80),
+        TPMT VARCHAR(80),
+        TPP VARCHAR(80),
+        Allowance VARCHAR(80),
+        Disability VARCHAR(80),
+        Payoutdate VARCHAR(80),
+        SFV VARCHAR(80),
+        Remarks VARCHAR(2000),
+        DRPA VARCHAR(80)
+    );
+
+    CREATE TABLE Clients (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(80) NOT NULL,
+        mobile VARCHAR(80) NOT NULL,
+        descript VARCHAR(80) NOT NULL,
+        idno VARCHAR(80) NOT NULL
+    );
+主机:sh-cynosdbmysql-grp-432jkmc0.sql.tencentcdb.com 端口:20498
 """
 from flask_sqlalchemy import SQLAlchemy
 
+pymysql.install_as_MySQLdb()
+
 application = Flask(__name__)
-application.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///my_database.db'
+application.config['SQLALCHEMY_DATABASE_URI'] =  f'mysql://{config.DB_USERNAME}:{config.DB_PASSWORD}@sh-cynosdbmysql-grp-432jkmc0.sql.tencentcdb.com:20498/adp_pa'
+
 db = SQLAlchemy(application)
 
-# 定义一个简单的数据模型
+
+# 定义数据模型
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
     age = db.Column(db.Integer)
+    
 
 class Clients(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -35,8 +95,48 @@ class Clients(db.Model):
     mobile = db.Column(db.String(80), nullable=False)
     descript =db.Column(db.String(80), nullable=False)
     idno = db.Column(db.String(80), nullable=False)
+   
+
+
+class Report(db.Model):
+    SN = db.Column(db.Integer, primary_key=True, autoincrement=True) 
+    LC = db.Column(db.String(80))
+    Insured = db.Column(db.String(80))
+    NIPID = db.Column(db.String(80))
+    ON = db.Column(db.String(80))
+    IDNIPID = db.Column(db.String(80))
+    MPN = db.Column(db.String(80))
+    PN = db.Column(db.String(80))
+    RT = db.Column(db.String(80))
+    DOC = db.Column(db.String(80))
+    TOC = db.Column(db.String(80))
+    LOC = db.Column(db.String(2000))
+    DOD = db.Column(db.String(2000))
+    AT = db.Column(db.String(80))
+    AC = db.Column(db.String(80))
+    SDA = db.Column(db.String(80))
+    WV = db.Column(db.String(80))
+    LD = db.Column(db.String(80))
+    TOL = db.Column(db.String(80))
+    CSS = db.Column(db.String(80))
+    CS = db.Column(db.String(80))
+    RN = db.Column(db.String(80))
+    PA = db.Column(db.String(80))
+    AMT = db.Column(db.String(80))
+    TPMT = db.Column(db.String(80))
+    TPP = db.Column(db.String(80))
+    Allowance = db.Column(db.String(80))
+    Disability = db.Column(db.String(80))
+    Payoutdate = db.Column(db.String(80))
+    SFV = db.Column(db.String(80))
+    Remarks = db.Column(db.String(2000))
+    DRPA = db.Column(db.String(80))
+    
 
 """
+
+
+
 Serial number（序号）-SN
 Labor company（人力公司）-LC
 Insured（被保险人）-I
@@ -100,55 +200,27 @@ incident_data = {
     "AMT": "骑手受伤，手臂骨折",
     "TPMT": "无第三方手上",
     "TPP": "小汽车剐蹭，一个漆面300元"
-}
 
-"""
-class Report(db.Model):
-    SN = db.Column(db.Integer, primary_key=True, autoincrement=True) 
-    LC = db.Column(db.String(80))
-    Insured = db.Column(db.String(80))
-    NIPID = db.Column(db.String(80))
-    ON = db.Column(db.String(80))
-    IDNIPID = db.Column(db.String(80))
-    MPN = db.Column(db.String(80))
-    PN = db.Column(db.String(80))
-    RT = db.Column(db.String(80))
-    DOC = db.Column(db.String(80))
-    TOC = db.Column(db.String(80))
-    LOC = db.Column(db.String(2000))
-    DOD = db.Column(db.String(2000))
-    AT = db.Column(db.String(80))
-    AC = db.Column(db.String(80))
-    SDA = db.Column(db.String(80))
-    WV = db.Column(db.String(80))
-    LD = db.Column(db.String(80))
-    TOL = db.Column(db.String(80))
-    CSS = db.Column(db.String(80))
-    CS = db.Column(db.String(80))
-    RN = db.Column(db.String(80))
-    PA = db.Column(db.String(80))
-    AMT = db.Column(db.String(80))
-    TPMT = db.Column(db.String(80))
-    TPP = db.Column(db.String(80))
-    Allowance = db.Column(db.String(80))
-    Disability = db.Column(db.String(80))
-    Payoutdate = db.Column(db.String(80))
-    SFV = db.Column(db.String(80))
-    Remarks = db.Column(db.String(2000))
-    DRPA = db.Column(db.String(80))
+    
     
 
 
+}
 
-        
-# 创建数据库表（如果不存在）
-with application.app_context():
-    db.create_all()
+"""
+
 
 
 @application.route('/')
 def welcome():
         return "Welcome to Nuts!"
+
+
+   
+# 创建数据库表（如果不存在）
+with application.app_context():
+    db.create_all()
+
 
 # API 路由，返回所有用户
 @application.route('/users', methods=['GET'])
@@ -393,7 +465,6 @@ def search_reports_by_rn():
             'Remarks': report.Remarks,
             'DRPA': report.DRPA
         } for report in reports])
-
 
 if __name__ == '__main__':
     application.run(debug=True)

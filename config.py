@@ -1,0 +1,2 @@
+DB_USERNAME = 'root'
+DB_PASSWORD = 'Qian1234!'

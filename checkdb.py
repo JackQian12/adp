@@ -1,7 +1,7 @@
 import sqlite3
 
 try:
-    conn = sqlite3.connect('my_database.db')
+    conn = sqlite3.connect('adp.db')
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM users")  # 假设存在一个名为 some_table 的表
     rows = cursor.fetchall()
