@@ -78,7 +78,6 @@ pymysql.install_as_MySQLdb()
 
 application = Flask(__name__)
 application.config['SQLALCHEMY_DATABASE_URI'] =  f'mysql://{config.DB_USERNAME}:{config.DB_PASSWORD}@sh-cynosdbmysql-grp-432jkmc0.sql.tencentcdb.com:20498/adp_pa'
-
 db = SQLAlchemy(application)
 
 
@@ -134,9 +133,6 @@ class Report(db.Model):
     
 
 """
-
-
-
 Serial number（序号）-SN
 Labor company（人力公司）-LC
 Insured（被保险人）-I
@@ -200,13 +196,7 @@ incident_data = {
     "AMT": "骑手受伤，手臂骨折",
     "TPMT": "无第三方手上",
     "TPP": "小汽车剐蹭，一个漆面300元"
-
-    
-    
-
-
 }
-
 """
 
 
@@ -465,6 +455,141 @@ def search_reports_by_rn():
             'Remarks': report.Remarks,
             'DRPA': report.DRPA
         } for report in reports])
+
+
+
+@application.route('/reports_page', methods=['GET'])
+def reports_page():
+    reports = Report.query.all()
+    reports_list = [{
+        'SN': report.SN,
+        'LC': report.LC,
+        'Insured': report.Insured,
+        'NIPID': report.NIPID,
+        'ON': report.ON,
+        'IDNIPID': report.IDNIPID,
+        'MPN': report.MPN,
+        'PN': report.PN,
+        'RT': report.RT,
+        'DOC': report.DOC,
+        'TOC': report.TOC,
+        'LOC': report.LOC,
+        'DOD': report.DOD,
+        'AT': report.AT,
+        'AC': report.AC,
+        'SDA': report.SDA,
+        'WV': report.WV,
+        'LD': report.LD,
+        'TOL': report.TOL,
+        'CSS': report.CSS,
+        'CS': report.CS,
+        'RN': report.RN,
+        'PA': report.PA,
+        'AMT': report.AMT,
+        'TPMT': report.TPMT,
+        'TPP': report.TPP,
+        'Allowance': report.Allowance,
+        'Disability': report.Disability,
+        'Payoutdate': report.Payoutdate,
+        'SFV': report.SFV,
+        'Remarks': report.Remarks,
+        'DRPA': report.DRPA
+    } for report in reports]
+
+    html = '''
+    <html>
+    <head>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 20px;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+                font-size: 12px;
+            }
+            th, td {
+                border: 1px solid #ddd;
+                padding: 4px;
+                text-align: left;
+            }
+            th {
+                background-color: #f2f2f2;
+                color: #333;
+            }
+            tr:nth-child(even) {
+                background-color: #f9f9f9;
+            }
+            tr:hover {
+                background-color: #f1f1f1;
+            }
+            h1 {
+                color: #333;
+            }
+            .table-container {
+                max-height: 1000px;
+                overflow-y: auto;
+                border: 1px solid #ddd;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Reports</h1>
+        <div class="table-container">
+            <table>
+                <tr>
+                    <th>SN</th>
+                    <th>LC</th>
+                    <th>Insured</th>
+                    <th>NIPID</th>
+                    <th>ON</th>
+                    <th>IDNIPID</th>
+                    <th>MPN</th>
+                    <th>PN</th>
+                    <th>RT</th>
+                    <th>DOC</th>
+                    <th>TOC</th>
+                    <th>LOC</th>
+                    <th>DOD</th>
+                    <th>AT</th>
+                    <th>AC</th>
+                    <th>SDA</th>
+                    <th>WV</th>
+                    <th>LD</th>
+                    <th>TOL</th>
+                    <th>CSS</th>
+                    <th>CS</th>
+                    <th>RN</th>
+                    <th>PA</th>
+                    <th>AMT</th>
+                    <th>TPMT</th>
+                    <th>TPP</th>
+                    <th>Allowance</th>
+                    <th>Disability</th>
+                    <th>Payoutdate</th>
+                    <th>SFV</th>
+                    <th>Remarks</th>
+                    <th>DRPA</th>
+                </tr>
+    '''
+
+    for report in reports_list:
+        html += '<tr>'
+        for key, value in report.items():
+            html += f'<td>{value}</td>'
+        html += '</tr>'
+
+    html += '''
+            </table>
+        </div>
+    </body>
+    </html>
+    '''
+
+    return html
+
 
 if __name__ == '__main__':
     application.run(debug=True)
